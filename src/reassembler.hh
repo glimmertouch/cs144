@@ -1,6 +1,7 @@
 #pragma once
 
 #include "byte_stream.hh"
+#include <set>
 
 class Reassembler
 {
@@ -42,4 +43,16 @@ public:
 
 private:
   ByteStream output_; // the Reassembler writes to this ByteStream
+  typedef struct Substring
+  {
+    uint64_t first_index;
+    uint64_t len;
+    std::string data;
+    // sort by the end of the substring
+    bool operator<( const Substring& other ) const { return first_index + len < other.first_index + len; }
+  } Substring;
+  std::set<Substring> pending_ = {};
+  bool last_substring_found_ = false;
+  uint64_t next_index_ = 0;
+  uint64_t bytes_pending_ = 0;
 };
