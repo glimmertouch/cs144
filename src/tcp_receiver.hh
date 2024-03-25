@@ -27,4 +27,7 @@ public:
 
 private:
   Reassembler reassembler_;
+  bool syn_received_ = false;
+  std::optional<Wrap32> next_seqno_ {};
+  Wrap32 ISN { 0 };
 };

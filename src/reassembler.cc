@@ -10,20 +10,17 @@ void Reassembler::insert( uint64_t first_index, string data, bool is_last_substr
        || first_index >= output_.writer().available_capacity() + next_index_ ) {
     return;
   } else {
-    // the overlapping substring will be truncated
-    if ( first_index < next_index_ ) {
-      data = data.substr( next_index_ - first_index, output_.writer().available_capacity() );
-      first_index = next_index_;
-    }
+    // the order is important
+    // while truncating the **before** part, the whole string may erase which can't trigger *is_last_string*
     // the part of substring exceeds the capacity will be truncated
-    if ( first_index >= next_index_
-         && next_index_ + output_.writer().available_capacity() - first_index < data.length() ) {
+    if ( next_index_ + output_.writer().available_capacity() - first_index < data.length() ) {
       data.resize( next_index_ + output_.writer().available_capacity() - first_index );
       is_last_substring = false;
     }
     // truncate the part before the next_index_
-    if ( next_index_ > first_index ) {
-      data = data.substr( next_index_ - first_index );
+    if ( first_index < next_index_ ) {
+      data = data.substr( next_index_ - first_index, output_.writer().available_capacity() );
+      first_index = next_index_;
     }
     Substring next = { first_index, data.length(), move( data ) };
     // check if the new substring may overlaps whole substring in the pending_
@@ -48,7 +45,7 @@ void Reassembler::insert( uint64_t first_index, string data, bool is_last_substr
         }
       }
 
-      for ( ; it != pending_.end(); ) {
+      while ( it != pending_.end() ) {
         /*
          *  [  )     <- next
          *     [  )  <- it

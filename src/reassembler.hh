@@ -41,6 +41,9 @@ public:
   // Access output stream writer, but const-only (can't write from outside)
   const Writer& writer() const { return output_.writer(); }
 
+  // return the absolute number for tcp receiver
+  uint64_t abs_seqno() const { return next_index_ + 1; };
+
 private:
   ByteStream output_; // the Reassembler writes to this ByteStream
   typedef struct Substring
