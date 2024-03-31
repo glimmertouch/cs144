@@ -15,7 +15,7 @@ void TCPReceiver::receive( TCPSenderMessage message )
     // SYN with payload
     stream_index_ = message.seqno.unwrap( ISN, reassembler_.abs_seqno() );
   } else {
-    // refer to the trans of abs_seqno & stream_index
+    // refer to the transform of abs_seqno & stream_index
     stream_index_ = message.seqno.unwrap( ISN, reassembler_.abs_seqno() ) - 1;
   }
   reassembler_.insert( stream_index_, message.payload, message.FIN );
