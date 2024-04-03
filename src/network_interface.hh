@@ -1,6 +1,8 @@
 #pragma once
 
 #include <queue>
+#include <map>
+#include <list>
 
 #include "address.hh"
 #include "ethernet_frame.hh"
@@ -81,4 +83,13 @@ private:
 
   // Datagrams that have been received
   std::queue<InternetDatagram> datagrams_received_ {};
+
+  // Mapping from IP address to Ethernet address <ip, ethernet, time>
+  std::map<uint32_t, std::pair < EthernetAddress, size_t > > arp_table_ {};
+
+  // Mapping IP Address in ARP request to the time it was sent
+  std::map< uint32_t, size_t > arp_requests_ {};
+
+  // Datagrams that need to be sent
+  std::list< std::pair< InternetDatagram, Address > > datagrams_to_send_ {};
 };
