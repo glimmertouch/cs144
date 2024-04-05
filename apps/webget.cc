@@ -22,7 +22,8 @@ void get_URL( const string& host, const string& path )
     sock.read( data );
     cout << data;
   }
-  // Call this function as it invokes `_tcp_thread.join()` and thus enables the thread to pass the clean shutdown check.
+  // Call this function as it invokes `_tcp_thread.join()` and thus enables the thread to pass the clean shutdown
+  // check.
   sock.wait_until_closed();
   sock.close();
 }

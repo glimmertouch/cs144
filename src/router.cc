@@ -21,10 +21,39 @@ void Router::add_route( const uint32_t route_prefix,
        << " on interface " << interface_num << "\n";
 
   // Your code here.
+  routes_.push_back( { route_prefix >> prefix_length, prefix_length, next_hop, interface_num } );
 }
 
 // Go through all the interfaces, and route every incoming datagram to its proper outgoing interface.
 void Router::route()
 {
   // Your code here.
+  for ( auto& recv_interface : _interfaces ) {
+    while ( !recv_interface->datagrams_received().empty() ) {
+      InternetDatagram dgram = recv_interface->datagrams_received().front();
+      uint32_t dst = dgram.header.dst;
+      auto best_match = routes_.end();
+      // choose the best route
+      for ( auto it = routes_.begin(); it != routes_.end(); it++ ) {
+        if ( it->prefix == ( dst >> it->prefix_length ) || it->prefix_length == 0 ) {
+          if ( best_match == routes_.end() || ( best_match->prefix_length < it->prefix_length ) ) {
+            best_match = it;
+          }
+        }
+      }
+
+      dgram.header.ttl--;
+      dgram.header.compute_checksum();
+      if ( best_match != routes_.end() ) {
+        if ( best_match->next_hop.has_value() ) {
+          _interfaces[best_match->interface_num]->send_datagram( dgram, best_match->next_hop.value() );
+        } else {
+          _interfaces[best_match->interface_num]->send_datagram( dgram, Address::from_ipv4_numeric( dst ) );
+        }
+      } else {
+        cerr << "DEBUG: no route for " << Address::from_ipv4_numeric( dst ).ip() << "\n";
+      }
+      recv_interface->datagrams_received().pop();
+    }
+  }
 }

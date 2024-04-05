@@ -6,14 +6,14 @@
 #include "exception.hh"
 #include "network_interface.hh"
 
-// \brief A router that has multiple network interfaces and
+//! \brief A router that has multiple network interfaces and
 // performs longest-prefix-match routing between them.
 class Router
 {
 public:
   // Add an interface to the router
-  // \param[in] interface an already-constructed network interface
-  // \returns The index of the interface after it has been added to the router
+  //! \param[in] interface an already-constructed network interface
+  //! \returns The index of the interface after it has been added to the router
   size_t add_interface( std::shared_ptr<NetworkInterface> interface )
   {
     _interfaces.push_back( notnull( "add_interface", std::move( interface ) ) );
@@ -35,4 +35,14 @@ public:
 private:
   // The router's collection of network interfaces
   std::vector<std::shared_ptr<NetworkInterface>> _interfaces {};
+
+  // routing table
+  struct Route
+  {
+    uint32_t prefix;
+    uint8_t prefix_length;
+    std::optional<Address> next_hop;
+    size_t interface_num;
+  };
+  std::vector<Route> routes_ {};
 };

@@ -33,8 +33,10 @@ struct ARPMessage
   void parse( Parser& parser );
   void serialize( Serializer& serializer ) const;
 
-  ARPMessage( const EthernetAddress& sender_ethernet_address_, uint32_t sender_ip_address_,
-              const EthernetAddress& target_ethernet_address_, uint32_t target_ip_address_ )
+  ARPMessage( const EthernetAddress& sender_ethernet_address_,
+              uint32_t sender_ip_address_,
+              const EthernetAddress& target_ethernet_address_,
+              uint32_t target_ip_address_ )
     : sender_ethernet_address( sender_ethernet_address_ )
     , sender_ip_address( sender_ip_address_ )
     , target_ethernet_address( target_ethernet_address_ )
