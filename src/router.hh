@@ -41,6 +41,7 @@ private:
   {
     uint32_t prefix;
     uint8_t prefix_length;
+    uint32_t mask;
     std::optional<Address> next_hop;
     size_t interface_num;
   };

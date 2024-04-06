@@ -21,7 +21,7 @@ void Router::add_route( const uint32_t route_prefix,
        << " on interface " << interface_num << "\n";
 
   // Your code here.
-  routes_.push_back( { route_prefix >> prefix_length, prefix_length, next_hop, interface_num } );
+  routes_.push_back( { route_prefix , prefix_length, ~( UINT32_MAX >> prefix_length ), next_hop, interface_num } );
 }
 
 // Go through all the interfaces, and route every incoming datagram to its proper outgoing interface.
@@ -31,11 +31,16 @@ void Router::route()
   for ( auto& recv_interface : _interfaces ) {
     while ( !recv_interface->datagrams_received().empty() ) {
       InternetDatagram dgram = recv_interface->datagrams_received().front();
+      if ( dgram.header.ttl == 0 ) {
+        cerr << "DEBUG: TTL expired\n";
+        recv_interface->datagrams_received().pop();
+        continue;
+      }      
       uint32_t dst = dgram.header.dst;
       auto best_match = routes_.end();
       // choose the best route
       for ( auto it = routes_.begin(); it != routes_.end(); it++ ) {
-        if ( it->prefix == ( dst >> it->prefix_length ) || it->prefix_length == 0 ) {
+        if ( ( dst & it->mask ) == ( it->prefix & it->mask ) ) {
           if ( best_match == routes_.end() || ( best_match->prefix_length < it->prefix_length ) ) {
             best_match = it;
           }
@@ -43,6 +48,11 @@ void Router::route()
       }
 
       dgram.header.ttl--;
+      if ( dgram.header.ttl == 0 ) {
+        cerr << "DEBUG: TTL expired\n";
+        recv_interface->datagrams_received().pop();
+        continue;
+      }
       dgram.header.compute_checksum();
       if ( best_match != routes_.end() ) {
         if ( best_match->next_hop.has_value() ) {

@@ -126,6 +126,7 @@ public:
     while ( not _interface->datagrams_received().empty() ) {
       auto& dgram_received = _interface->datagrams_received().front();
       if ( not expecting( dgram_received ) ) {
+        printf( "experting_to_recvive : %s \n", _expecting_to_receive.front().header.to_string().c_str() );
         throw runtime_error( "Host " + _name
                              + " received unexpected Internet datagram: " + dgram_received.header.to_string() );
       }
